@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 
 items_specs = []
@@ -73,9 +75,11 @@ items = []
 for cord in items_specs:
     items.append(Item(cord[0], cord[1], cord[2], cord[3]))
 
-backpack1 = Backpack(100, 100)
+backpack1 = Backpack(20, 20)
 
-
+start_time = time.time()
 greedy_algorithm(backpack1, items)
+end_time = time.time()
+print(f"Total time: {end_time - start_time}")
 print(f"Value of greedy algorithm: {backpack1.get_value_of_items()}")
 backpack1.display_backpack()

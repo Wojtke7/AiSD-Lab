@@ -1,23 +1,9 @@
 import random
+import time
 import numpy as np
 import multiprocessing
 
-size = '20'
-
-# if __name__ == "__main__":
-#     with open('packages' + size + '.txt') as txt:
-#         items = [line.split(",") for line in txt]
-#
-#     # remove header
-#     del (items[0])
-#     del (items[0])
-#
-#     # remove endlines
-#     for item in items:
-#         item[-1] = item[-1].strip()
-#
-#     # convert to integers
-#     items = [[int(j) for j in i] for i in items]
+BACKPACK_SIZE = 20
 
 items_specs = []
 
@@ -59,7 +45,7 @@ class Backpack:
     def display_backpack(self):
         print(self.field)
 
-    def get_value_of_items(self):
+    def get_value(self):
         return self.value
 
 
@@ -70,30 +56,35 @@ class Item:
         self.height = int(height)
         self.value = int(value)
 
-
-def greedy_algorithm(backpack, items):
-    temp_items = items
-    temp_items.sort(key=lambda item: item.value/(item.height * item.width), reverse=True)
-    for item in temp_items:
-        backpack.add_item(item)
+    def copy(self):
+        copied_item = Item(self._id, self.width, self.height, self.value)
+        return copied_item
 
 
 with open("packages/packages100.txt", 'r') as file:
     for line in file:
         line = line.strip().split('\n')
         items_specs.append(line[0].split(','))
-        #print(line)
+        # print(line)
 
 items_specs.pop(0)
 items_specs.pop(0)
 items = []
 
-#print(items_specs)
 for cord in items_specs:
     items.append(Item(cord[0], cord[1], cord[2], cord[3]))
 
 
-    # constants
+def eval(gene):
+    if isinstance(gene[-1], int):
+        return 0
+    backpack = Backpack(BACKPACK_SIZE, BACKPACK_SIZE)
+    for item in gene:
+        backpack.add_item(item)
+    return backpack.get_value()
+
+
+def ant_algorithm():
     p = 100  # population size
     pc = 0.2  # elite percentage
     pm = 0.01  # mutations
@@ -102,16 +93,17 @@ for cord in items_specs:
     population = []
     try:
         counter = 0
-        while True:
+        while counter < 300:
             counter += 1
             # generate random population
             for i in range(p - len(population)):
                 population.append(random.sample(items, k=len(items)))
 
-            print(population)
+            # print(population)
             # multicore eval
             pool = multiprocessing.Pool()
             result = pool.map(eval, population)
+            # print(result)
 
             for i in range(len(population)):
                 if not isinstance(population[i][-1], int):
@@ -176,8 +168,16 @@ for cord in items_specs:
                         del population[m][-1]
                     # eval new genome
                     # population[m].append(eval(population[m]))
+        print(counter, population[0][-1])
 
     except KeyboardInterrupt:
-        print(population[0])
-        print(len(population[0]))
-        print(len(population))
+        pass
+        # print(population[0])
+        # print(len(population[0]))
+        # print(len(population))
+
+
+start_time = time.time()
+ant_algorithm()
+end_time = time.time()
+print(f"Total time: {end_time - start_time}")
